@@ -14,15 +14,14 @@ db = QdrantDocumentDB(
 @app.post("/upload")
 async def upload_document(document: DocumentInput):
     try:
-        # Sử dụng id từ metadata nếu có, nếu không tạo mới
         doc_id = document.metadata.id or str(uuid.uuid4())
-        # Cập nhật id vào metadata
+
         document.metadata.id = doc_id
         
         db.add_document(
             doc_id=doc_id,
             text=document.data,
-            metadata=document.metadata.dict()  # Chuyển metadata thành dict
+            metadata=document.metadata.dict()
         )
         return {"status": "success", "id": doc_id}
     except Exception as e:

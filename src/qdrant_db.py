@@ -5,7 +5,6 @@ from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
-# Tắt cảnh báo về symlinks
 os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 
 class QdrantDocumentDB:
@@ -13,13 +12,12 @@ class QdrantDocumentDB:
         self,
         url: str,
         collection_name: str,
-        vector_size: int = 768  # Kích thước vector của mô hình phobert-base
+        vector_size: int = 768
     ):
         self.qdrant_client = QdrantClient(url=url)
         self.collection_name = collection_name
         self.model = SentenceTransformer('VoVanPhuc/sup-SimCSE-VietNamese-phobert-base')
-        
-        # Kiểm tra collection có tồn tại không
+
         collections = self.qdrant_client.get_collections().collections
         exists = any(col.name == collection_name for col in collections)
         
@@ -68,7 +66,6 @@ class QdrantDocumentDB:
             query_vector=query_vector.tolist(),
             limit=top_k
         )
-        # Lọc kết quả theo min_score
         filtered_results = [
             {
                 "id": hit.id,
@@ -81,26 +78,23 @@ class QdrantDocumentDB:
         return filtered_results
 
     def get_all_documents(self, offset: int = 0, limit: int = 10):
-        # Lấy tổng số documents
         collection_info = self.qdrant_client.get_collection(self.collection_name)
         total_docs = collection_info.points_count
 
-        # Scroll qua documents với phân trang
         results = self.qdrant_client.scroll(
             collection_name=self.collection_name,
             offset=offset,
             limit=limit,
             with_payload=True,
-            with_vectors=False  # Không cần lấy vectors
+            with_vectors=False
         )
-        
-        # Lấy documents từ kết quả scroll
+
         documents = [
             {
                 "id": point.id,
                 "metadata": point.payload
             }
-            for point in results[0]  # results[0] chứa danh sách points
+            for point in results[0]
         ]
         
         return {
