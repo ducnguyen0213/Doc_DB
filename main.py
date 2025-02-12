@@ -7,7 +7,7 @@ app = FastAPI()
 
 # Khởi tạo QdrantDB
 db = QdrantDocumentDB(
-    url="http://192.168.110.66:6333",
+    url="http://localhost:6333",
     collection_name="documents"
 )
 
